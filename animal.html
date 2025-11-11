@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Animal Detector</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+
+        .upload-section {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 60px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9ff;
+        }
+
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: #f0f2ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #764ba2;
+            background: #e8eaff;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            font-size: 1.2em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .upload-subtext {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .preview-section {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+        }
+
+        .preview-container {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .image-preview {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .image-preview img {
+            width: 100%;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .results-section {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .result-card h2 {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .confidence {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .breed {
+            font-size: 1.3em;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .info-card {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-card h3 {
+            color: #667eea;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .info-card p {
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        .characteristics-section {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .characteristics-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .char-item {
+            margin-bottom: 15px;
+        }
+
+        .char-item strong {
+            color: #333;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .char-item p {
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .observations-section {
+            background: #fff9e6;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #ffc107;
+        }
+
+        .observations-section h3 {
+            color: #f57c00;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .observations-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .observations-section li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .observations-section li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #ffc107;
+            font-weight: bold;
+            font-size: 1.5em;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(0,0,0,0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .reset-btn {
+            display: block;
+            margin: 20px auto;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 30px;
+            opacity: 0.9;
+        }
+
+        .error {
+            background: #ff5252;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .preview-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🐾 AI Animal Detector</h1>
+            <p>Upload any animal image and get instant AI-powered identification with detailed analysis</p>
+        </div>
+
+        <div class="upload-section">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">📸</div>
+                <div class="upload-text">Click to upload or drag and drop</div>
+                <div class="upload-subtext">Supports: JPG, PNG, GIF (Max 5MB)</div>
+            </div>
+            <input type="file" id="fileInput" accept="image/*">
+        </div>
+
+        <div class="preview-section" id="previewSection">
+            <div class="preview-container">
+                <div class="image-preview">
+                    <img id="previewImage" src="" alt="Uploaded animal">
+                </div>
+                <div class="results-section" id="resultsSection">
+                    <div class="loading" id="loadingIndicator">
+                        <div class="spinner"></div>
+                        <p>Analyzing image with AI...</p>
+                    </div>
+                </div>
+            </div>
+            <button class="btn reset-btn" onclick="resetAnalysis()">Analyze Another Image</button>
+        </div>
+
+        <div class="footer">
+            <p>Powered by advanced AI technology • Accurate animal identification</p>
+        </div>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const previewSection = document.getElementById('previewSection');
+        const previewImage = document.getElementById('previewImage');
+        const resultsSection = document.getElementById('resultsSection');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+
+        // API Configuration - Replace with your actual API key
+        // In production, use environment variables and a backend server
+        const API_KEY = 'YOUR_ANTHROPIC_API_KEY_HERE'; // REPLACE THIS
+        const API_URL = 'https://api.anthropic.com/v1/messages';
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                handleFile(file);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        });
+
+        function handleFile(file) {
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File size must be less than 5MB');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImage.src = e.target.result;
+                previewSection.style.display = 'block';
+                loadingIndicator.style.display = 'block';
+                analyzeImage(e.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function analyzeImage(imageDataUrl) {
+            try {
+                // Extract base64 data
+                const base64Data = imageDataUrl.split(',')[1];
+                const mimeType = imageDataUrl.split(',')[0].split(':')[1].split(';')[0];
+
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': API_KEY,
+                        'anthropic-version': '2023-06-01'
+                    },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-20250514',
+                        max_tokens: 2000,
+                        messages: [{
+                            role: 'user',
+                            content: [
+                                {
+                                    type: 'image',
+                                    source: {
+                                        type: 'base64',
+                                        media_type: mimeType,
+                                        data: base64Data
+                                    }
+                                },
+                                {
+                                    type: 'text',
+                                    text: `Analyze this animal image and provide a detailed response in JSON format with the following structure:
+{
+  "animal": "name of animal",
+  "confidence": "percentage as number (e.g., 95)",
+  "breed": "specific breed or type",
+  "age_range": "estimated age range",
+  "size": "size description",
+  "color": "detailed color description",
+  "coat": "coat/fur/skin description",
+  "distinguishing_features": "notable features",
+  "observations": ["list", "of", "detailed", "observations"]
+}
+
+Be detailed and accurate. If you cannot identify the animal with certainty, provide your best analysis.`
+                                }
+                            ]
+                        }]
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                const analysisText = data.content[0].text;
+                
+                // Extract JSON from response
+                const jsonMatch = analysisText.match(/\{[\s\S]*\}/);
+                if (!jsonMatch) {
+                    throw new Error('Could not parse AI response');
+                }
+                
+                const analysis = JSON.parse(jsonMatch[0]);
+                displayResults(analysis);
+            } catch (error) {
+                console.error('Analysis error:', error);
+                displayError(error.message);
+            }
+        }
+
+        function displayResults(analysis) {
+            loadingIndicator.style.display = 'none';
+            
+            resultsSection.innerHTML = `
+                <div class="result-card">
+                    <h2>${analysis.animal || 'Unknown'}</h2>
+                    <div class="confidence">${analysis.confidence || '0'}% confident</div>
+                    <div class="breed">${analysis.breed || 'N/A'}</div>
+                </div>
+
+                <div class="info-grid">
+                    <div class="info-card">
+                        <h3>Age Range</h3>
+                        <p>${analysis.age_range || 'Unknown'}</p>
+                    </div>
+                </div>
+
+                <div class="characteristics-section">
+                    <h3>Characteristics</h3>
+                    
+                    <div class="char-item">
+                        <strong>Size</strong>
+                        <p>${analysis.size || 'Not determined'}</p>
+                    </div>
+
+                    <div class="char-item">
+                        <strong>Color</strong>
+                        <p>${analysis.color || 'Not determined'}</p>
+                    </div>
+
+                    <div class="char-item">
+                        <strong>Coat/Fur</strong>
+                        <p>${analysis.coat || 'Not determined'}</p>
+                    </div>
+
+                    <div class="char-item">
+                        <strong>Distinguishing Features</strong>
+                        <p>${analysis.distinguishing_features || 'None noted'}</p>
+                    </div>
+                </div>
+
+                <div class="observations-section">
+                    <h3>Observations</h3>
+                    <ul>
+                        ${(analysis.observations || []).map(obs => `<li>${obs}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+
+        function displayError(message) {
+            loadingIndicator.style.display = 'none';
+            resultsSection.innerHTML = `
+                <div class="error">
+                    <strong>Analysis Failed</strong><br>
+                    ${message}<br>
+                    Please check your API key configuration and try again.
+                </div>
+            `;
+        }
+
+        function resetAnalysis() {
+            previewSection.style.display = 'none';
+            fileInput.value = '';
+            resultsSection.innerHTML = `
+                <div class="loading" id="loadingIndicator">
+                    <div class="spinner"></div>
+                    <p>Analyzing image with AI...</p>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

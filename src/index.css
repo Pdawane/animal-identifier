@@ -1,0 +1,86 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 210 100% 98%;
+    --foreground: 215 25% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 215 25% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 25% 15%;
+
+    --primary: 175 85% 35%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 145 75% 92%;
+    --secondary-foreground: 175 85% 25%;
+
+    --muted: 145 30% 95%;
+    --muted-foreground: 215 15% 45%;
+
+    --accent: 35 100% 60%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 145 30% 88%;
+    --input: 145 30% 88%;
+    --ring: 175 85% 35%;
+
+    --radius: 0.75rem;
+
+    --gradient-hero: linear-gradient(135deg, hsl(175 85% 35%), hsl(165 75% 45%));
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(145 30% 98%));
+    --shadow-soft: 0 4px 20px -2px hsl(175 85% 35% / 0.1);
+    --shadow-glow: 0 0 40px hsl(175 85% 55% / 0.15);
+  }
+
+  .dark {
+    --background: 215 30% 10%;
+    --foreground: 145 30% 95%;
+
+    --card: 215 25% 15%;
+    --card-foreground: 145 30% 95%;
+
+    --popover: 215 25% 15%;
+    --popover-foreground: 145 30% 95%;
+
+    --primary: 175 75% 45%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 215 20% 20%;
+    --secondary-foreground: 145 30% 95%;
+
+    --muted: 215 20% 18%;
+    --muted-foreground: 145 15% 60%;
+
+    --accent: 35 100% 55%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 215 20% 25%;
+    --input: 215 20% 25%;
+    --ring: 175 75% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}

@@ -1,0 +1,4 @@
+project_id = "yxfadhuyhyfmokvlfggm"
+
+[functions.analyze-animal]
+verify_jwt = false
