@@ -68,14 +68,14 @@ serve(async (req) => {
       confidence: Math.round((azureData.tags[0]?.confidence || 0.7) * 100),
       observations: [
         azureData.description?.captions?.[0]?.text || "Animal detected",
-        `Detected features: ${azureData.tags.slice(0, 5).map(t => t.name).join(', ')}`,
+        `Detected features: ${azureData.tags.slice(0, 5).map((t: any) => t.name).join(', ')}`,
         `Color analysis: ${azureData.color?.dominantColors?.join(', ') || 'Various colors'}`
       ],
       characteristics: {
         size: "Medium",
         coat: azureData.color?.dominantColorForeground || "Not specified",
         color: azureData.color?.dominantColors?.join(', ') || "Various",
-        distinguishingFeatures: azureData.tags.slice(0, 3).map(t => t.name).join(', ')
+        distinguishingFeatures: azureData.tags.slice(0, 3).map((t: any) => t.name).join(', ')
       },
       imageUrl: imageBase64
     };
